@@ -1,6 +1,6 @@
 ﻿# Set Job Status of Concourse to Jira
 
-This application is STEP-II of the integration. Please look at the integration diagram. 
+This application is STEP-II of the jira, consul and concourse integration. Please look at the integration diagram. 
 
 If you need to manage users who triggers jobs of Concourse than you need to run this script in jobs.
 
