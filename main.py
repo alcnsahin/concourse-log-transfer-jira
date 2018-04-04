@@ -43,10 +43,10 @@ def dump_headers(response):
 
 
 def base64encoder(text):
-    return base64.b16encode(text)
+    return base64.b64encode(text)
 
 
-# params
+# parameters
 USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.20 (KHTML, like Gecko) Chrome/11.0.672.2 Safari/534.20'
 PIPELINE_NAME = "PIPELINE_NAME"
 JOB_NAME = "JOB_NAME"
@@ -54,7 +54,7 @@ CONCOURSE_ROOT_URL = "CONCOURSE_ROOT_PATH"
 UAA_ROOT_URL = "UAA_ROOT_PATH"
 CONSUL_ROOT_URL = "CONSUL_ROOT_PATH"
 JIRA_ROOT_URL = "JIRA_ROOT_PATH"
-JIRA_ENCRYPTED_PASS = "Basic" + base64.b64encode("username:password")
+JIRA_ENCRYPTED_PASS = "Basic" + base64encoder("username:password")
 
 # get bearer token (step 1)
 opener.addheaders.append(('Accept', 'application/json'))
