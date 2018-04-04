@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import os
 import urllib
 import urllib2
 import cookielib
@@ -48,13 +49,17 @@ def base64encoder(text):
 
 # parameters
 USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.20 (KHTML, like Gecko) Chrome/11.0.672.2 Safari/534.20'
-PIPELINE_NAME = "PIPELINE_NAME"
-JOB_NAME = "JOB_NAME"
-CONCOURSE_ROOT_URL = "CONCOURSE_ROOT_PATH"
-UAA_ROOT_URL = "UAA_ROOT_PATH"
-CONSUL_ROOT_URL = "CONSUL_ROOT_PATH"
-JIRA_ROOT_URL = "JIRA_ROOT_PATH"
-JIRA_ENCRYPTED_PASS = "Basic" + base64encoder("username:password")
+PIPELINE_NAME = os.environ['PIPELINE_NAME']
+JOB_NAME = os.environ['JOB_NAME']
+CONCOURSE_ROOT_URL = os.environ['CONCOURSE_ROOT_PATH']
+UAA_ROOT_URL = os.environ['UAA_ROOT_PATH']
+UAA_USERNAME = os.environ['UAA_USERNAME']
+UAA_PASSWORD = os.environ['UAA_PASSWORD']
+CONSUL_ROOT_URL = os.environ['CONSUL_ROOT_PATH']
+JIRA_ROOT_URL = os.environ['JIRA_ROOT_PATH']
+JIRA_USERNAME = os.environ['JIRA_USERNAME']
+JIRA_PASSWORD = os.environ['JIRA_PASSWORD']
+JIRA_ENCRYPTED_PASS = "Basic" + base64encoder(JIRA_USERNAME+":"+JIRA_PASSWORD)
 
 # get bearer token (step 1)
 opener.addheaders.append(('Accept', 'application/json'))
@@ -67,7 +72,7 @@ uaa_resp = opener.open(UAA_ROOT_URL + "/login")
 csrf_token = get_cookie("X-Uaa-Csrf").replace("X-Uaa-Csrf = ", "")
 
 # UAA LOGIN.DO POST  (step 3)
-login_data = urllib.urlencode({'username': 'UAA_USERNAME', 'password': 'UAA_PASSWORD', 'X-Uaa-Csrf': csrf_token})
+login_data = urllib.urlencode({'username': UAA_USERNAME, 'password': UAA_PASSWORD, 'X-Uaa-Csrf': csrf_token})
 uaa_resp = opener.open(UAA_ROOT_URL + "/login.do", data=login_data)
 bearer_token = uaa_resp.read()
 # print(bearer_token)
