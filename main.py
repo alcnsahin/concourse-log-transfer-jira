@@ -53,6 +53,7 @@ concourse_root_path = "CONCOURSE_ROOT_PATH"
 uaa_root_path = "UAA_ROOT_PATH"
 consul_root_path = "CONSUL_ROOT_PATH"
 jira_root_path = "JIRA_ROOT_PATH"
+jira_encrypted_up = "Basic" + base64.b64encode("username:password")
 
 # get bearer token
 opener.addheaders.append(('Accept', 'application/json'))
@@ -88,9 +89,11 @@ job_status = build_json_object["status"]
 print(job_status)
 
 # jira comment
-comment = {"body":  "Status: " + job_status}
-encrypted_pass = "Basic " + base64encoder("JIRA_USERNAME:JIRA_PASSWORD")
-opener.addheaders.append(("Authorization", encrypted_pass))
-jira = opener.open(jira_root_path + "/rest/api/2/issue/" + jira_issue_id + "/comment")
-jira_result = jira.read()
-print(jira_result)
+jbs = "JobStatus=" + job_status
+comment = {'body': jbs}
+print(comment)
+req = urllib2.Request(jira_root_path + "/rest/api/2/issue/" + jira_issue_id + "/comment")
+req.add_header('Content-Type', 'application/json')
+req.add_header('Authorization', jira_encrypted_up)
+response = urllib2.urlopen(req, json.dumps(comment))
+print(response.getcode())
