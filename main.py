@@ -61,17 +61,17 @@ opener.addheaders.append(('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 6.1
 resp = opener.open(concourse_root_path + "/auth/oauth?team_name=main")
 concourse_state = get_cookie("_concourse_oauth_state").replace("_concourse_oauth_state = ", "")
 
-print("#UAA LOGIN GET#")
+# UAA LOGIN GET
 uaa_resp = opener.open(uaa_root_path + "/login")
 csrf_token = get_cookie("X-Uaa-Csrf").replace("X-Uaa-Csrf = ", "")
 
-print("#UAA LOGIN.DO POST#")
+# UAA LOGIN.DO POST
 login_data = urllib.urlencode({'username': 'UAA_USERNAME', 'password': 'UAA_PASSWORD', 'X-Uaa-Csrf': csrf_token})
 uaa_resp = opener.open(uaa_root_path + "/login.do", data=login_data)
 bearer_token = uaa_resp.read()
-print(bearer_token)
+# print(bearer_token)
 
-print("#GET Consul Result#")
+# GET Consul Result
 consul = opener.open(consul_root_path + "/" + pipeline_name + "/" + job_name)
 consul_response = consul.read()
 consul_json_array = json.loads(consul_response)
@@ -86,7 +86,7 @@ opener.addheaders.append(('Authorization', bearer_token.rstrip()))
 build_result = opener.open(concourse_root_path + "/api/v1/builds/" + build_id)
 build_json_object = json.loads(build_result.read())
 job_status = build_json_object["status"]
-print(job_status)
+# print(job_status)
 
 # jira comment
 jbs = "JobStatus=" + job_status
