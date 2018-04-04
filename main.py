@@ -47,33 +47,33 @@ def base64encoder(text):
 
 
 # params
-user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.20 (KHTML, like Gecko) Chrome/11.0.672.2 Safari/534.20'
-pipeline_name = "PIPELINE_NAME"
-job_name = "JOB_NAME"
-concourse_root_path = "CONCOURSE_ROOT_PATH"
-uaa_root_path = "UAA_ROOT_PATH"
-consul_root_path = "CONSUL_ROOT_PATH"
-jira_root_path = "JIRA_ROOT_PATH"
-jira_encrypted_up = "Basic" + base64.b64encode("username:password")
+USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.20 (KHTML, like Gecko) Chrome/11.0.672.2 Safari/534.20'
+PIPELINE_NAME = "PIPELINE_NAME"
+JOB_NAME = "JOB_NAME"
+CONCOURSE_ROOT_URL = "CONCOURSE_ROOT_PATH"
+UAA_ROOT_URL = "UAA_ROOT_PATH"
+CONSUL_ROOT_URL = "CONSUL_ROOT_PATH"
+JIRA_ROOT_URL = "JIRA_ROOT_PATH"
+JIRA_ENCRYPTED_PASS = "Basic" + base64.b64encode("username:password")
 
 # get bearer token (step 1)
 opener.addheaders.append(('Accept', 'application/json'))
-opener.addheaders.append(('User-Agent', user_agent))
-resp = opener.open(concourse_root_path + "/auth/oauth?team_name=main")
+opener.addheaders.append(('User-Agent', USER_AGENT))
+resp = opener.open(CONCOURSE_ROOT_URL + "/auth/oauth?team_name=main")
 concourse_state = get_cookie("_concourse_oauth_state").replace("_concourse_oauth_state = ", "")
 
 # UAA LOGIN GET  (step 2)
-uaa_resp = opener.open(uaa_root_path + "/login")
+uaa_resp = opener.open(UAA_ROOT_URL + "/login")
 csrf_token = get_cookie("X-Uaa-Csrf").replace("X-Uaa-Csrf = ", "")
 
 # UAA LOGIN.DO POST  (step 3)
 login_data = urllib.urlencode({'username': 'UAA_USERNAME', 'password': 'UAA_PASSWORD', 'X-Uaa-Csrf': csrf_token})
-uaa_resp = opener.open(uaa_root_path + "/login.do", data=login_data)
+uaa_resp = opener.open(UAA_ROOT_URL + "/login.do", data=login_data)
 bearer_token = uaa_resp.read()
 # print(bearer_token)
 
 # GET Consul Result
-consul = opener.open(consul_root_path + "/" + pipeline_name + "/" + job_name)
+consul = opener.open(CONSUL_ROOT_URL + "/" + PIPELINE_NAME + "/" + JOB_NAME)
 consul_response = consul.read()
 consul_json_array = json.loads(consul_response)
 consul_value = base64.b64decode(consul_json_array[0]['Value'])  # decode consul value
@@ -84,7 +84,7 @@ print("build_id: " + build_id)
 
 # get job status from concourse
 opener.addheaders.append(('Authorization', bearer_token.rstrip()))
-build_result = opener.open(concourse_root_path + "/api/v1/builds/" + build_id)
+build_result = opener.open(CONCOURSE_ROOT_URL + "/api/v1/builds/" + build_id)
 build_json_object = json.loads(build_result.read())
 job_status = build_json_object["status"]
 # print(job_status)
@@ -93,8 +93,8 @@ job_status = build_json_object["status"]
 jbs = "JobStatus=" + job_status
 comment = {'body': jbs}
 print(comment)
-jira_req = urllib2.Request(jira_root_path + "/rest/api/2/issue/" + jira_issue_id + "/comment")
+jira_req = urllib2.Request(JIRA_ROOT_URL + "/rest/api/2/issue/" + jira_issue_id + "/comment")
 jira_req.add_header('Content-Type', 'application/json')
-jira_req.add_header('Authorization', jira_encrypted_up)
+jira_req.add_header('Authorization', JIRA_ENCRYPTED_PASS)
 jira_response = urllib2.urlopen(jira_req, json.dumps(comment))
 print(jira_response.getcode())
