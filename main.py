@@ -47,6 +47,7 @@ def base64encoder(text):
 
 
 # params
+user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.20 (KHTML, like Gecko) Chrome/11.0.672.2 Safari/534.20'
 pipeline_name = "PIPELINE_NAME"
 job_name = "JOB_NAME"
 concourse_root_path = "CONCOURSE_ROOT_PATH"
@@ -55,17 +56,17 @@ consul_root_path = "CONSUL_ROOT_PATH"
 jira_root_path = "JIRA_ROOT_PATH"
 jira_encrypted_up = "Basic" + base64.b64encode("username:password")
 
-# get bearer token
+# get bearer token (step 1)
 opener.addheaders.append(('Accept', 'application/json'))
-opener.addheaders.append(('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.20 (KHTML, like Gecko) Chrome/11.0.672.2 Safari/534.20'))
+opener.addheaders.append(('User-Agent', user_agent))
 resp = opener.open(concourse_root_path + "/auth/oauth?team_name=main")
 concourse_state = get_cookie("_concourse_oauth_state").replace("_concourse_oauth_state = ", "")
 
-# UAA LOGIN GET
+# UAA LOGIN GET  (step 2)
 uaa_resp = opener.open(uaa_root_path + "/login")
 csrf_token = get_cookie("X-Uaa-Csrf").replace("X-Uaa-Csrf = ", "")
 
-# UAA LOGIN.DO POST
+# UAA LOGIN.DO POST  (step 3)
 login_data = urllib.urlencode({'username': 'UAA_USERNAME', 'password': 'UAA_PASSWORD', 'X-Uaa-Csrf': csrf_token})
 uaa_resp = opener.open(uaa_root_path + "/login.do", data=login_data)
 bearer_token = uaa_resp.read()
@@ -92,8 +93,8 @@ job_status = build_json_object["status"]
 jbs = "JobStatus=" + job_status
 comment = {'body': jbs}
 print(comment)
-req = urllib2.Request(jira_root_path + "/rest/api/2/issue/" + jira_issue_id + "/comment")
-req.add_header('Content-Type', 'application/json')
-req.add_header('Authorization', jira_encrypted_up)
-response = urllib2.urlopen(req, json.dumps(comment))
-print(response.getcode())
+jira_req = urllib2.Request(jira_root_path + "/rest/api/2/issue/" + jira_issue_id + "/comment")
+jira_req.add_header('Content-Type', 'application/json')
+jira_req.add_header('Authorization', jira_encrypted_up)
+jira_response = urllib2.urlopen(jira_req, json.dumps(comment))
+print(jira_response.getcode())
