@@ -8,4 +8,4 @@ If you want to check jira plugin of this integration(STEP-I) please check this p
 https://github.com/alcnsahin/concourse-trigger-test
 
 ### Steps of the Concourse-Jira integration diagram
-![alt text](http://devament.com/concourse/concourse-jira-integration.jpeg)
+![alt text](http://devament.com/static/assets/concourse/concourse-jira-integration.jpeg)
